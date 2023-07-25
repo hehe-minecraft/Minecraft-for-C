@@ -22,7 +22,7 @@ Vector Vector::operator+(Vector &other)
     if (this->dimensions != other.dimensions)
     {
         throw errors::VectorDimensionError();
-    }
+    };
     Vector result(*this);
     for (unsigned short index = 0; index < this->dimensions; index++)
     {
@@ -93,6 +93,10 @@ Vector Vector::operator/(double other)
 
 double Vector::dot(Vector &other)
 {
+    if (this->dimensions != other.dimensions)
+    {
+        throw errors::VectorDimensionError();
+    };
     double result = 0;
     for (unsigned short index = 0; index < this->dimensions; index++)
     {
@@ -109,6 +113,16 @@ double Vector::length()
         result_squared += this->values[index] * this->values[index];
     };
     return sqrt(result_squared);
+};
+
+Vector Vector::length(int scale)
+{
+    return *this / (this->length() * scale);
+};
+
+double Vector::angle(Vector &other)
+{
+    return acos(this->dot(other) / (this->length() * other.length()));
 };
 
 Matrix::Matrix(const Matrix &item)

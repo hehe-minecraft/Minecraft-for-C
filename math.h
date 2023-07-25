@@ -18,6 +18,8 @@ class Vector
         Vector operator/(double);
         double dot(Vector &);
         double length();
+        Vector length(int);
+        double angle(Vector &);
 };
 
 class Matrix
