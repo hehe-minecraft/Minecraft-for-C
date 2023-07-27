@@ -1,5 +1,7 @@
 #pragma once
 
+double radian(double);
+
 class Vector
 {
 	public:
@@ -8,6 +10,7 @@ class Vector
 
 		Vector(const Vector &);
 		Vector(unsigned short, double []);
+		~Vector();
 		Vector operator+(Vector &);
 		Vector operator+(double);
 		Vector operator-();
@@ -31,6 +34,7 @@ class Matrix
 		Matrix(const Matrix &);
 		Matrix(unsigned short [2]);
 		Matrix(unsigned short [2], double *); // "*" is actually a ptr pointing at the first element of an array with two dimensions.
+		~Matrix();
 		Matrix operator+(Matrix &);
 		Matrix operator+(double);
 		Matrix operator-();
@@ -40,4 +44,5 @@ class Matrix
 		Vector operator*(Vector &);
 		Matrix operator*(double);
 		Matrix operator/(double);
+		Matrix transpose();
 };
