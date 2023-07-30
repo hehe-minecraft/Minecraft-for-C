@@ -2,33 +2,45 @@
 #include "math.h"
 #include "constants.hpp"
 
-double radian(double theta){
+double radian(const double theta){
 	return theta * (M_PI / 180);
 };
 
-Matrix::Matrix(const Matrix &item)
+Matrix::Matrix(const Matrix &item) : Matrix(item.dimensions, item.values)
+{};
+
+Matrix::Matrix(Matrix &&item)
 {
-	unsigned short dimensions[2] = {item.dimensions[0], item.dimensions[1]};
-	*this = Matrix(dimensions, item.values);
+	this->dimensions[0] = item.dimensions[0];
+	this->dimensions[1] = item.dimensions[1];
+	this->values = item.values;	
+	item.values = nullptr;
 };
 
-Matrix::Matrix(unsigned short dimensions[2])
+Matrix::Matrix(const unsigned short dimensions[2])
 {
 	this->dimensions[0] = dimensions[0];
 	this->dimensions[1] = dimensions[1];
 	this->values = new double[dimensions[0] * dimensions[1]]();
 };
 
-Matrix::Matrix(unsigned short dimensions[2], double *values)
+Matrix::Matrix(const unsigned short dimensions[2], const double *values) : Matrix(dimensions)
 {
-	*this = Matrix(dimensions);
 	for (unsigned int ptr_offset = 0; ptr_offset < dimensions[0] * dimensions[1]; ptr_offset++)
 	{
 		*(this->values + ptr_offset) = *(values + ptr_offset);
 	};
 };
 
-Matrix Matrix::operator+(Matrix &other)
+Matrix::~Matrix()
+{
+	if (this->values != nullptr)
+	{
+		delete[] this->values;
+	};
+};
+
+Matrix Matrix::operator+(const Matrix &other) const
 {
 	if (this->dimensions[0] != other.dimensions[0] || this->dimensions[1] != other.dimensions[1])
 	{
@@ -42,7 +54,7 @@ Matrix Matrix::operator+(Matrix &other)
 	return result;
 };
 
-Matrix Matrix::operator+(double other)
+Matrix Matrix::operator+(const double other) const
 {
 	Matrix result(*this);
 	for (unsigned int ptr_offset = 0; ptr_offset < this->dimensions[0] * this->dimensions[1]; ptr_offset++)
@@ -52,7 +64,7 @@ Matrix Matrix::operator+(double other)
 	return result;
 };
 
-Matrix Matrix::operator-()
+Matrix Matrix::operator-() const
 {
 	Matrix result(*this);
 	for (unsigned int ptr_offset = 0; ptr_offset < this->dimensions[0] * this->dimensions[1]; ptr_offset++)
@@ -62,18 +74,18 @@ Matrix Matrix::operator-()
 	return result;
 };
 
-Matrix Matrix::operator-(Matrix &other)
+Matrix Matrix::operator-(const Matrix &other) const
 {
 	Matrix reversed = -other;
 	return *this + reversed;
 };
 
-Matrix Matrix::operator-(double other)
+Matrix Matrix::operator-(const double other) const
 {
 	return *this + -other;
 };
 
-Matrix Matrix::operator*(Matrix &other)
+Matrix Matrix::operator*(const Matrix &other) const
 {
 	if (this->dimensions[1] != other.dimensions[0])
 	{
@@ -98,7 +110,7 @@ Matrix Matrix::operator*(Matrix &other)
 	return result;
 };
 
-Vector Matrix::operator*(Vector &other)
+Vector Matrix::operator*(const Vector &other) const
 {
 	unsigned short vector_matrix_dimensions[2] = {other.dimensions, 1};
 	Matrix vector_matrix(vector_matrix_dimensions, other.values);
@@ -107,7 +119,7 @@ Vector Matrix::operator*(Vector &other)
 	return result;
 };
 
-Matrix Matrix::operator*(double other)
+Matrix Matrix::operator*(const double other) const
 {
 	Matrix result(*this);
 	for (unsigned int ptr_offset = 0; ptr_offset < this->dimensions[0] * this->dimensions[1]; ptr_offset++)
@@ -117,12 +129,12 @@ Matrix Matrix::operator*(double other)
 	return result;
 };
 
-Matrix Matrix::operator/(double other)
+Matrix Matrix::operator/(const double other) const
 {
 	return *this * (1.0 / other);
 };
 
-Matrix Matrix::transpose()
+Matrix Matrix::transpose() const
 {
 	Matrix result(this->dimensions);
 	unsigned short row, column;
@@ -134,17 +146,10 @@ Matrix Matrix::transpose()
 	};
 };
 
-Matrix::~Matrix()
-{
-	delete this->values;
-};
+Vector::Vector(const Vector &item) : Vector(item.dimensions, item.values)
+{};
 
-Vector::Vector(const Vector &item)
-{
-	*this = Vector(item.dimensions, item.values);
-};
-
-Vector::Vector(unsigned short dimensions, double values[])
+Vector::Vector(const unsigned short dimensions, const double values[])
 {
 	this->dimensions = dimensions;
 	this->values = new double[dimensions]();
@@ -154,12 +159,22 @@ Vector::Vector(unsigned short dimensions, double values[])
 	};
 };
 
-Vector::~Vector()
+Vector::Vector(Vector &&item)
 {
-	delete[] this->values;
+	this->dimensions = item.dimensions;
+	this->values = item.values;
+	item.values = nullptr;
 };
 
-Vector Vector::operator+(Vector &other)
+Vector::~Vector()
+{
+	if (this->values != nullptr)
+	{
+		delete[] this->values;
+	};
+};
+
+Vector Vector::operator+(const Vector &other) const
 {
 	if (this->dimensions != other.dimensions)
 	{
@@ -173,7 +188,7 @@ Vector Vector::operator+(Vector &other)
 	return result;
 };
 
-Vector Vector::operator+(double other)
+Vector Vector::operator+(const double other) const
 {
 	Vector result(*this);
 	for (unsigned short index = 0; index < this->dimensions; index++)
@@ -183,7 +198,7 @@ Vector Vector::operator+(double other)
 	return result;
 };
 
-Vector Vector::operator-()
+Vector Vector::operator-() const
 {
 	Vector result = *this;
 	for (unsigned short index = 0; index < this->dimensions; index++)
@@ -193,18 +208,18 @@ Vector Vector::operator-()
 	return result;
 };
 
-Vector Vector::operator-(Vector &other)
+Vector Vector::operator-(const Vector &other) const
 {
 	Vector reversed = -other;
 	return *this + reversed;
 };
 
-Vector Vector::operator-(double other)
+Vector Vector::operator-(const double other) const
 {
 	return *this + -other;
 };
 
-Vector Vector::operator*(Vector &other)
+Vector Vector::operator*(const Vector &other) const
 {
 	if (this->dimensions != 3 || other.dimensions != 3)
 	{
@@ -218,7 +233,7 @@ Vector Vector::operator*(Vector &other)
 	return result;
 };
 
-Vector Vector::operator*(double other)
+Vector Vector::operator*(const double other) const
 {
 	Vector result(*this);
 	for (unsigned short index = 0; index < this->dimensions; index++)
@@ -228,12 +243,12 @@ Vector Vector::operator*(double other)
 	return result;
 };
 
-Vector Vector::operator/(double other)
+Vector Vector::operator/(const double other) const
 {
 	return *this * (1.0 / other);
 };
 
-double Vector::dot(Vector &other)
+double Vector::dot(const Vector &other) const
 {
 	if (this->dimensions != other.dimensions)
 	{
@@ -247,7 +262,7 @@ double Vector::dot(Vector &other)
 	return result;
 };
 
-double Vector::length()
+double Vector::length() const
 {
 	double result_squared = 0;
 	for (unsigned short index = 0; index < this->dimensions; index++)
@@ -257,12 +272,12 @@ double Vector::length()
 	return sqrt(result_squared);
 };
 
-Vector Vector::length(int scale)
+Vector Vector::length(const int scale) const
 {
 	return *this / (this->length() * scale);
 };
 
-double Vector::angle(Vector &other)
+double Vector::angle(const Vector &other) const
 {
 	return acos(this->dot(other) / (this->length() * other.length()));
 };
