@@ -3,7 +3,7 @@
 #include "constants.hpp"
 
 double radian(const double theta){
-	return theta * (M_PI / 180);
+	return theta * (constants::pi / 180);
 };
 
 Matrix::Matrix(const Matrix &item) : Matrix(item.dimensions, item.values)
@@ -144,6 +144,7 @@ Matrix Matrix::transpose() const
 		column = ptr_offset % this->dimensions[1];
 		*(result.values + column + row * this->dimensions[1]) = *(this->values + ptr_offset);
 	};
+	return result;
 };
 
 Vector::Vector(const Vector &item) : Vector(item.dimensions, item.values)
