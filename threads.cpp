@@ -137,7 +137,6 @@ void DistributeThread::run()
 			std::chrono::duration<int, std::milli> wait_time(function.first - this->game_time);
 			std::this_thread::sleep_for(wait_time);
 			this->game_time = function.first;
-			continue;
 		};
 		this->queue.pop();
 		function_plan = this->plans[function.second];

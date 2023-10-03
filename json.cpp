@@ -13,7 +13,7 @@ static inline void no_null_ptr(void *pointer)
 
 static inline void skip_space(const std::wstring &string, unsigned int &iter)
 {
-	while (std::isspace(string[iter]))
+	while (std::isspace(string.at(iter)))
 	{
 		iter++;
 	};
@@ -563,7 +563,7 @@ Json::operator JsonMap() const
 Json json_parser::parse(std::wstring &string, unsigned int &iter)
 {
 	skip_space(string, iter);
-	switch (string[iter])
+	switch (string.at(iter))
 	{
 		case '"':
 			return parse_string(string, iter);
@@ -606,7 +606,7 @@ Json json_parser::parse_keyword(std::wstring &string, unsigned int &iter)
 
 Json json_parser::parse_string(std::wstring &string, unsigned int &iter)
 {
-	if (string[iter] != '"')
+	if (string.at(iter) != '"')
 	{
 		throw errors::JsonSyntaxError();
 	};
@@ -615,12 +615,12 @@ Json json_parser::parse_string(std::wstring &string, unsigned int &iter)
 	while (iter < string.length())
 	{
 		iter += 1;
-		current_char = string[iter];
+		current_char = string.at(iter);
 		switch (current_char)
 		{
 			case '\\':
 				iter += 1;
-				current_char = string[iter];
+				current_char = string.at(iter);
 				switch (current_char)
 				{
 					case 'b':
@@ -689,7 +689,7 @@ Json json_parser::parse_list(std::wstring &string, unsigned int &iter)
 	{
 		((JsonList)result).append(json_parser::parse(string, iter));
 		skip_space(string, iter);
-		if (string[iter] == ']')
+		if (string.at(iter) == ']')
 		{
 			break;
 		}
@@ -713,13 +713,13 @@ Json json_parser::parse_map(std::wstring &string, unsigned int &iter)
 	while (true)
 	{
 		skip_space(string, iter);
-		if (string[iter] != '"')
+		if (string.at(iter) != '"')
 		{
 			throw errors::JsonSyntaxError();
 		};
 		Json key_json = json_parser::parse_string(string, iter);
 		skip_space(string, iter);
-		if (string[iter] == ':')
+		if (string.at(iter) == ':')
 		{
 			iter++;
 		}
@@ -730,7 +730,7 @@ Json json_parser::parse_map(std::wstring &string, unsigned int &iter)
 		Json value_json = json_parser::parse(string, iter);
 		((JsonMap)result).append(key_json, value_json);
 		skip_space(string, iter);
-		if (string[iter] == '}')
+		if (string.at(iter) == '}')
 		{
 			break;
 		}
@@ -761,5 +761,22 @@ Json parse(const std::string file_name)
 Json parse_string(std::wstring source)
 {
 	unsigned int index = 0;
-	return json_parser::parse(source, index);
+	Json result;
+	try
+	{
+		result = json_parser::parse(source, index);
+	}
+	catch (std::out_of_range)
+	{
+		throw errors::JsonEOFError();
+	};
+	try
+	{
+		skip_space(source, index); // it should stop right here and into catch
+		throw errors::JsonSyntaxError();
+	}
+	catch (std::out_of_range) // no more characters at the end of the string
+	{
+		return result;
+	};
 };
