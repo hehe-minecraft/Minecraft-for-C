@@ -21,6 +21,16 @@ namespace choices
 		state_paused,
 		state_stopped
 	};
+	enum json
+	{
+		json_null,
+		json_bool,
+		json_int,
+		json_float,
+		json_string,
+		json_list,
+		json_map
+	};
 };
 
 namespace errors
@@ -30,5 +40,15 @@ namespace errors
 	class VectorDimensionError: public MathError{};
 	class MatrixDimensionError: public MathError{};
 	class ChoiceError: public BasicError{};
+	class UnexpectedControlError: public BasicError{};
 	class ThreadExistError: public BasicError{};
+	class IndexError: public BasicError{};
+	class FileError: public BasicError{};
+	class FileNotFoundError: public FileError{};
+	class NullPointerError: public BasicError{};
+	class JsonError: public BasicError{};
+	class JsonTypeError: public JsonError{};
+	class JsonSyntaxError: public JsonError{};
+	class JsonEOFError: public JsonError{};
+	class JsonBackSlashError: public JsonSyntaxError{};
 };

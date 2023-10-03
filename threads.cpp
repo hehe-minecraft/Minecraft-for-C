@@ -35,14 +35,21 @@ void BasicThread::run()
 	while (this->running)
 	{
 		this->state = choices::state_running;
-		function = this->queue.front();
-		function();
-		this->queue.pop();
 		if (this->queue.empty())
 		{
 			this->sleep();
+		}
+		else
+		{
+			function = this->queue.front();
+			if (function)
+			{
+				function();
+			}
+			this->queue.pop();
 		};
 	};
+	delete this->lock;
 };
 
 void BasicThread::sleep()
@@ -59,9 +66,10 @@ void BasicThread::stop()
 	this->state = choices::state_stopped;
 };
 
-void BasicThread::work(std::function<void ()> function)
+void BasicThread::work(std::function<void ()> &function)
 {
 	this->queue.push(function);
+	this->alarm.notify_all();
 };
 
 BasicThread * DistributeThread::create(const char* name)
@@ -74,6 +82,7 @@ BasicThread * DistributeThread::create(const char* name)
 	BasicThread *new_thread = new BasicThread(name);
 	this->threads[name_string] = new_thread;
 	this->locks[name_string] = std::unique_lock<std::mutex>(new_thread->mutex);
+	this->locks[name_string].unlock();
 	return new_thread;
 };
 
@@ -100,6 +109,11 @@ BasicThread * DistributeThread::get(const char *thread_name)
 	};
 };
 
+void DistributeThread::join()
+{
+	this->thread->join();
+};
+
 void DistributeThread::repeat_work(const char* thread_name, unsigned int delay, std::function<void ()> function)
 {
 	plan new_plan;
@@ -120,9 +134,9 @@ void DistributeThread::run()
 		function = this->queue.top();
 		if (function.first > this->game_time)
 		{
-			sleep((function.first - this->game_time) / 1000);  // Change milliseconds into seconds
+			std::chrono::duration<int, std::milli> wait_time(function.first - this->game_time);
+			std::this_thread::sleep_for(wait_time);
 			this->game_time = function.first;
-			continue;
 		};
 		this->queue.pop();
 		function_plan = this->plans[function.second];

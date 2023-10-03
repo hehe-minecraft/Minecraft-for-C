@@ -1,3 +1,4 @@
+#pragma once
 #include <condition_variable>
 #include <functional>
 #include <thread>
@@ -17,9 +18,10 @@ class BasicThread
 		std::unique_lock<std::mutex> * pause();
 		void resume(std::unique_lock<std::mutex> &);
 		void stop();
+		void work(std::function<void ()> &function);
 	protected:
 		std::condition_variable alarm;
-		std::unique_lock<std::mutex> *lock;
+		std::unique_lock<std::mutex> *lock = nullptr;
 		std::mutex mutex;
 		std::queue<std::function<void ()>> queue;
 		bool running = true;
@@ -27,8 +29,6 @@ class BasicThread
 		std::thread *thread = nullptr;
 		void run();
 		void sleep();
-	public:
-		void work(std::function<void ()> function);
 };
 
 class DistributeThread
@@ -38,13 +38,14 @@ class DistributeThread
 	{
 		unsigned int delay;
 		std::function<void ()> function = nullptr;
-		BasicThread* thread;
+		BasicThread* thread = nullptr;
 	};
 	public:
 		unsigned long long game_time = 0;
 		std::string name = "Distributor";
 		BasicThread * create(const char*);
 		BasicThread * get(const char*);
+		void join();
 		void repeat_work(const char* thread_name, unsigned int delay, std::function<void ()> function);
 		bool start();
 		void stop();
