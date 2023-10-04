@@ -19,197 +19,6 @@ static inline void skip_space(const std::wstring &string, unsigned int &iter)
 	};
 };
 
-JsonList::JsonList(const JsonList &item)
-{
-	this->extend(item);
-};
-
-inline Json JsonList::operator[](const int index)
-{
-	if (index >= this->length() || index < -this->length())
-	{
-		throw errors::IndexError();
-	};
-	if (index >= 0)
-	{
-		return this->content[index];
-	}
-	else
-	{
-		return this->content[this->length() + index]; // index is negative so we use adding.
-	};
-};
-
-JsonList::operator bool()
-{
-	return this->length();
-};
-
-inline void JsonList::append(const bool item)
-{
-	this->append(Json(item));
-};
-
-inline void JsonList::append(const int item)
-{
-	this->append(Json(item));
-};
-
-inline void JsonList::append(const double item)
-{
-	this->append(Json(item));
-};
-
-inline void JsonList::append(const std::wstring &item)
-{
-	this->append(Json(item));
-};
-
-inline void JsonList::append(const JsonList &item)
-{
-	this->append(Json(item));
-};
-
-inline void JsonList::append(const JsonMap &item)
-{
-	this->append(Json(item));
-};
-
-inline void JsonList::append(const Json &item)
-{
-	this->content.push_back(item);
-};
-
-unsigned int JsonList::extend(const JsonList &item)
-{
-	for (auto each_item : item.content)
-	{
-		this->append(Json(each_item));
-	};
-	return this->length();
-};
-
-inline Json JsonList::get(const int index)
-{
-	return this[index];
-};
-
-inline unsigned int JsonList::insert(const bool item, const int index)
-{
-	return this->insert(Json(item), index);
-};
-
-inline unsigned int JsonList::insert(const int item, const int index)
-{
-	return this->insert(Json(item), index);
-};
-
-inline unsigned int JsonList::insert(const double item, const int index)
-{
-	return this->insert(Json(item), index);
-};
-
-inline unsigned int JsonList::insert(const std::wstring &item, const int index)
-{
-	return this->insert(Json(item), index);
-};
-
-inline unsigned int JsonList::insert(const JsonList &item, const int index)
-{
-	return this->insert(Json(item), index);
-};
-
-inline unsigned int JsonList::insert(const JsonMap &item, const int index)
-{
-	return this->insert(Json(item), index);
-};
-
-inline unsigned int JsonList::insert(const Json &item, const int index)
-{
-	if (index > this->length() || index < -this->length())
-	{
-		throw errors::IndexError();
-	};
-	if (index > 0)
-	{
-		this->content.insert(this->content.begin() + index, item);
-	}
-	else
-	{
-		this->content.insert(this->content.begin() + this->length() + index, item); // index is negative so we use adding.
-	};
-	return this->length();
-};
-
-inline unsigned int JsonList::length()
-{
-	return this->content.size();
-};
-
-JsonMap::JsonMap(const JsonMap &item)
-{
-	this->append(item);
-};
-
-inline Json JsonMap::operator[](const std::wstring &index)
-{
-	return this->content[index];
-};
-
-JsonMap::operator bool()
-{
-	return this->size();
-}
-
-inline void JsonMap::append(const std::wstring &key, const bool value)
-{
-	this->append(key, Json(value));
-};
-
-inline void JsonMap::append(const std::wstring &key, const int value)
-{
-	this->append(key, Json(value));
-};
-
-inline void JsonMap::append(const std::wstring &key, const double value)
-{
-	this->append(key, Json(value));
-};
-
-inline void JsonMap::append(const std::wstring &key, const std::wstring &value)
-{
-	this->append(key, Json(value));
-};
-
-inline void JsonMap::append(const std::wstring &key, const JsonList &value)
-{
-	this->append(key, Json(value));
-};
-
-inline void JsonMap::append(const std::wstring &key, const JsonMap &value)
-{
-	this->append(key, Json(value));
-};
-
-inline void JsonMap::append(const std::wstring &key, const Json &value)
-{
-	this->content.insert(std::make_pair(key, value));
-};
-
-inline unsigned int JsonMap::append(const JsonMap &source)
-{
-	for (auto &each_item : source.content)
-	{
-		this->append(std::wstring(each_item.first), Json(each_item.second));
-	};
-	return this->size();
-};
-
-inline unsigned int JsonMap::size()
-{
-	return this->content.size();
-};
-
 Json::Json()
 {
 	this->type = choices::json_null;
@@ -780,3 +589,93 @@ Json parse_string(std::wstring source)
 		return result;
 	};
 };
+
+JsonList::JsonList(const JsonList &item)
+{
+	this->extend(item);
+};
+
+Json& JsonList::operator[](const int index)
+{
+	if (index >= this->length() || index < -this->length())
+	{
+		throw errors::IndexError();
+	};
+	if (index >= 0)
+	{
+		return this->content[index];
+	}
+	else
+	{
+		return this->content[this->length() + index]; // index is negative so we use adding.
+	};
+};
+
+JsonList::operator bool()
+{
+	return this->length();
+};
+
+unsigned int JsonList::extend(const JsonList &item)
+{
+	for (auto each_item : item.content)
+	{
+		this->append(Json(each_item));
+	};
+	return this->length();
+};
+
+unsigned int JsonList::insert(const Json &item, const int index)
+{
+	if (index > this->length() || index < -this->length())
+	{
+		throw errors::IndexError();
+	};
+	if (index > 0)
+	{
+		this->content.insert(this->content.begin() + index, item);
+	}
+	else
+	{
+		this->content.insert(this->content.begin() + this->length() + index, item); // index is negative so we use adding.
+	};
+	return this->length();
+};
+
+JsonMap::JsonMap(const JsonMap &item)
+{
+	this->append(item);
+};
+
+JsonMap::operator bool()
+{
+	return this->size();
+};
+
+unsigned int JsonMap::append(const JsonMap &source)
+{
+	for (auto &each_item : source.content)
+	{
+		this->append(std::wstring(each_item.first), Json(each_item.second));
+	};
+	return this->size();
+};
+
+template void JsonList::append(const bool &);
+template void JsonList::append(const int &);
+template void JsonList::append(const double &);
+template void JsonList::append(const std::wstring &);
+template void JsonList::append(const JsonList &);
+template void JsonList::append(const JsonMap &);
+template unsigned int JsonList::insert(const bool &, const int);
+template unsigned int JsonList::insert(const int &, const int);
+template unsigned int JsonList::insert(const double &, const int);
+template unsigned int JsonList::insert(const std::wstring &, const int);
+template unsigned int JsonList::insert(const JsonList &, const int);
+template unsigned int JsonList::insert(const JsonMap &, const int);
+template void JsonMap::append(const std::wstring &, const bool &);
+template void JsonMap::append(const std::wstring &, const int &);
+template void JsonMap::append(const std::wstring &, const double &);
+template void JsonMap::append(const std::wstring &, const std::wstring &);
+template void JsonMap::append(const std::wstring &, const JsonList &);
+template void JsonMap::append(const std::wstring &, const JsonMap &);

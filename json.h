@@ -8,54 +8,6 @@ class JsonList;
 class JsonMap;
 class Json;
 
-class JsonList
-{
-	public:
-		JsonList() = default;
-		JsonList(const JsonList &);
-		inline Json operator[](const int);
-		operator bool();
-		inline void append(const bool);
-		inline void append(const int);
-		inline void append(const double);
-		inline void append(const std::wstring &);
-		inline void append(const JsonList &);
-		inline void append(const JsonMap &);
-		inline void append(const Json &);
-		unsigned int extend(const JsonList &);
-		inline Json get(const int);
-		inline unsigned int insert(const bool, const int);
-		inline unsigned int insert(const int, const int);
-		inline unsigned int insert(const double, const int);
-		inline unsigned int insert(const std::wstring &, const int);
-		inline unsigned int insert(const JsonList &, const int);
-		inline unsigned int insert(const JsonMap &, const int);
-		inline unsigned int insert(const Json &, const int);
-		inline unsigned int length();
-	protected:
-		std::vector<Json> content;
-};
-
-class JsonMap
-{
-	public:
-		JsonMap() = default;
-		JsonMap(const JsonMap &);
-		inline Json operator[](const std::wstring &);
-		operator bool();
-		inline void append(const std::wstring &, const bool);
-		inline void append(const std::wstring &, const int);
-		inline void append(const std::wstring &, const double);
-		inline void append(const std::wstring &, const std::wstring &);
-		inline void append(const std::wstring &, const JsonList &);
-		inline void append(const std::wstring &, const JsonMap &);
-		inline void append(const std::wstring &, const Json &);
-		inline unsigned int append(const JsonMap &);
-		inline unsigned int size();
-	protected:
-		std::unordered_map<std::wstring, Json> content;
-};
-
 class Json
 {
 	public:
@@ -69,8 +21,8 @@ class Json
 		Json(const JsonList &);
 		Json(const JsonMap &);
 		~Json();
-		inline Json operator[](const int);
-		inline Json operator[](const std::wstring &);
+		Json operator[](const int);
+		Json operator[](const std::wstring &);
 		void operator=(const Json &);
 		operator bool() const;
 		explicit operator bool();
@@ -85,6 +37,71 @@ class Json
 	protected:
 		choices::json type;
 		void *content = nullptr;
+};
+
+class JsonList
+{
+	public:
+		JsonList() = default;
+		JsonList(const JsonList &);
+		Json& operator[](const int);
+		operator bool();
+		unsigned int extend(const JsonList &);
+		unsigned int insert(const Json &item, const int index);
+	protected:
+		std::vector<Json> content;
+	public:
+		template <typename json_type>
+		inline void append(const json_type &item)
+		{
+			this->append(Json(item));
+		};
+		inline void append(const Json &item)
+		{
+			this->content.push_back(item);
+		};
+		inline Json& get(const int index)
+		{
+			return this->operator[](index);
+		};
+		template <typename json_type>
+		inline unsigned int insert(const json_type &item, const int index)
+		{
+			return this->insert(Json(item), index);
+		};
+		inline unsigned int length()
+		{
+			return this->content.size();
+		};
+};
+
+class JsonMap
+{
+	public:
+		JsonMap() = default;
+		JsonMap(const JsonMap &);
+		operator bool();
+		unsigned int append(const JsonMap &);
+	protected:
+		std::unordered_map<std::wstring, Json> content;
+	public:
+		inline Json& operator[](const std::wstring &index)
+		{
+			return this->content[index];
+		};
+		template <typename json_type>
+		inline void append(const std::wstring &key, const json_type &value)
+		{
+			this->append(key, Json(value));
+		};
+		inline void append(const std::wstring &key, const Json &value)
+		{
+			this->content[key] = value;
+		};
+		inline unsigned int size()
+		{
+			return this->content.size();
+		};
 };
 
 namespace json_parser
