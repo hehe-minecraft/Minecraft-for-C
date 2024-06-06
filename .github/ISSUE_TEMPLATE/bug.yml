@@ -1,0 +1,44 @@
+name: Report the bugs in this repository
+description: Tell us the bug you've found in the application.
+body:
+- type: markdown
+  attributes:
+    value: |
+      Thanks for reporting the bug to help us improve!
+      If you are looking for a feature request, please move [here](https://github.com/hehe-minecraft/Minecraft-for-C/discussions/categories/feature-request) in the discussion channel.
+- type: textarea
+  attributes:
+    label: Description
+    description: Please describe the bug you've found.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Reproduction Steps
+    description: Please describe the steps to reproduce the bug.
+    placeholder: |
+      1. 
+      2. 
+      3. 
+      ...
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Expected Result
+    description: What do you expect to happen?
+  validations:
+    required: false
+- type: dropdown
+  attributes:
+    label: Version
+    options:
+    - "** no version **"
+  validations:
+    required: true
+- type: checkboxes
+  attributes:
+    label: Before Submitting
+    options:
+    - label: I've checked the issue not to be a duplication.
+      required: true

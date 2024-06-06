@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+- name: Website
+  url: https://hehe-minecraft.github.io/html/zh/application/Minecraft for C/index.html
+  about: Go to my personal website.
+- name: Feature request
+  url: https://github.com/hehe-minecraft/Minecraft-for-C/discussions/categories/feature-request
+  about: Features cannot be created in the issues channel. Please move to the discussion channel.
