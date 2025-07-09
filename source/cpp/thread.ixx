@@ -229,6 +229,19 @@ export namespace thread
 				};
 			};
 		public:
+			Distributor() noexcept :
+				Thread{},
+				stopping{ false }
+			{};
+			Distributor(const Distributor&) = delete;
+			Distributor(Distributor&& source) noexcept :
+				Thread{ std::move(source) },
+				stopping{ source.stopping }
+			{};
+			~Distributor() noexcept
+			{
+				this->join();
+			};
 			void start()
 			{
 				if (this->status != choices::thread::status::not_started)
