@@ -108,7 +108,6 @@ export namespace thread
 			bool stopping;
 			void run()
 			{
-				this->status = choices::thread::status::idle;
 				task task;
 				while (not this->stopping)
 				{
@@ -154,6 +153,7 @@ export namespace thread
 					throw errors::ThreadStartedError();
 				};
 				this->thread = std::thread{ std::bind(&Worker::run, this) };
+				this->status = choices::thread::status::idle;
 			};
 			inline void stop_after_current_work() noexcept
 			{
