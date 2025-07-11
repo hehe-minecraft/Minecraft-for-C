@@ -6,7 +6,7 @@ export namespace constants
 {
 	namespace thread
 	{
-		const std::string default_name = "Worker";
+		const std::string default_name = "Thread";
 		constexpr unsigned int max_tasks = 1024;
 	};
 };
