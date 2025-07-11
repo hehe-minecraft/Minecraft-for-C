@@ -203,11 +203,15 @@ export namespace thread
 						break;
 					};
 					this->status = choices::thread::status::sleeping;
-					this->alarm.wait_until(lock, this->task_queue.top().next_running_time);
-					if (this->stopping)
+					std::cv_status notified_reason;
+					do
 					{
-						break;
-					};
+						notified_reason = this->alarm.wait_until(lock, this->task_queue.top().next_running_time);
+						if (this->stopping)
+						{
+							break;
+						};
+					} while (notified_reason == std::cv_status::no_timeout);
 					this->status = choices::thread::status::running;
 					DistributingTask task{ std::move(this->task_queue.top()) };
 					this->task_queue.pop();
@@ -223,10 +227,7 @@ export namespace thread
 			};
 			inline void wake() noexcept
 			{
-				if (this->status == choices::thread::status::idle)
-				{
-					this->alarm.notify_one();
-				};
+				this->alarm.notify_one();
 			};
 		public:
 			Distributor() noexcept :
