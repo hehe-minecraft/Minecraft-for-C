@@ -177,8 +177,17 @@ export namespace thread
 			Group(const Group&) = delete;
 			Group(Group&& source)
 			{
+				for (const Worker& each_worker : source.workers)
+				{
+					this->add_worker(each_worker.name);
+				};
 				source.join();
-				std::exchange(this->workers, std::move(source.workers));
+				std::optional<task> moving_task = source.tasks.try_get();
+				while (moving_task.has_value())
+				{
+					this->add_task(moving_task.value());
+					moving_task = source.tasks.try_get();
+				};
 			};
 			~Group() noexcept
 			{
