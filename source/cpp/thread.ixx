@@ -166,6 +166,46 @@ export namespace thread
 				Thread::join();
 			};
 	};
+	class Group
+	{
+		friend class Distributor;
+		protected:
+			std::deque<Worker> workers;
+			TaskQueue tasks;
+		public:
+			Group() noexcept = default;
+			Group(const Group&) = delete;
+			Group(Group&& source)
+			{
+				source.join();
+				std::exchange(this->workers, std::move(source.workers));
+			};
+			~Group() noexcept
+			{
+				this->join();
+			};
+			std::size_t inline size() const noexcept
+			{
+				return this->workers.size();
+			};
+			void add_worker(const std::string& name = constants::thread::default_name) noexcept
+			{
+				this->workers.emplace_back(this->tasks);
+				this->workers.back().start();
+			};
+			void inline add_task(const task& task) noexcept
+			{
+				this->tasks.add(task);
+			};
+			void join() noexcept
+			{
+				for (Worker& each_worker : this->workers)
+				{
+					each_worker.join();
+				};
+				this->workers.clear();
+			};
+	};
 	class Distributor : public Thread
 	{
 		using duration = std::chrono::milliseconds;
@@ -225,10 +265,6 @@ export namespace thread
 				};
 				this->status = choices::thread::status::terminated;
 			};
-			inline void wake() noexcept
-			{
-				this->alarm.notify_one();
-			};
 		public:
 			Distributor() noexcept :
 				Thread{},
@@ -255,6 +291,10 @@ export namespace thread
 			{
 				queue.add(task);
 			};
+			inline void add_immediate_task(Group& group, const task& task) const noexcept
+			{
+				this->add_immediate_task(group.tasks, task);
+			};
 			void add_single_task(TaskQueue& queue, const task& task, const duration& delay) noexcept
 			{
 				DistributingTask single_task
@@ -267,11 +307,11 @@ export namespace thread
 				};
 				std::unique_lock<std::mutex> lock{ this->mutex };
 				this->task_queue.emplace(std::move(single_task));
-				this->wake();
+				this->alarm.notify_one();
 			};
-			inline void add_loop_task(TaskQueue& queue, const task& task, const duration& interval) noexcept
+			inline void add_single_task(Group& group, const task& task, const duration& delay) noexcept
 			{
-				this->add_loop_task(queue, task, interval, interval);
+				this->add_single_task(group.tasks, task, delay);
 			};
 			void add_loop_task(TaskQueue& queue, const task& task, const duration& interval, const duration& delay) noexcept
 			{
@@ -285,7 +325,19 @@ export namespace thread
 				};
 				std::unique_lock<std::mutex> lock{ this->mutex };
 				this->task_queue.emplace(std::move(loop_task));
-				this->wake();
+				this->alarm.notify_one();
+			};
+			inline void add_loop_task(TaskQueue& queue, const task& task, const duration& interval) noexcept
+			{
+				this->add_loop_task(queue, task, interval, interval);
+			};
+			inline void add_loop_task(Group& group, const task& task, const duration& interval, const duration& delay) noexcept
+			{
+				this->add_loop_task(group.tasks, task, interval, delay);
+			};
+			inline void add_loop_task(Group& group, const task& task, const duration& interval) noexcept
+			{
+				this->add_loop_task(group, task, interval, interval);
 			};
 			inline void stop() noexcept
 			{
@@ -296,41 +348,6 @@ export namespace thread
 			{
 				this->stop();
 				Thread::join();
-			};
-	};
-	class Group
-	{
-		protected:
-			std::deque<Worker> workers;
-			TaskQueue tasks;
-		public:
-			Group() noexcept = default;
-			Group(const Group&) = delete;
-			Group(Group&& source)
-			{
-				source.join();
-				std::exchange(this->workers, std::move(source.workers));
-			};
-			std::size_t inline size() const noexcept
-			{
-				return this->workers.size();
-			};
-			void add_worker(const std::string& name = constants::thread::default_name) noexcept
-			{
-				this->workers.emplace_back(this->tasks);
-				this->workers.back().start();
-			};
-			void inline add_task(const task& task) noexcept
-			{
-				this->tasks.add(task);
-			};
-			void join() noexcept
-			{
-				for (Worker& each_worker : this->workers)
-				{
-					each_worker.join();
-				};
-				this->workers.clear();
 			};
 	};
 };
