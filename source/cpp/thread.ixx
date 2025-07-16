@@ -14,7 +14,7 @@ export namespace thread
 			std::condition_variable alarm;
 			std::mutex mutex;
 		public:
-			unsigned int max_tasks = constants::thread::max_tasks;
+			std::size_t max_tasks = constants::thread::max_tasks;
 			TaskQueue() = default;
 			TaskQueue(const TaskQueue&) = delete;
 			TaskQueue(TaskQueue&&) = delete;
@@ -200,6 +200,7 @@ export namespace thread
 			void add_worker(const std::string& name = constants::thread::default_name) noexcept
 			{
 				this->workers.emplace_back(this->tasks);
+				this->workers.back().name = name;
 				this->workers.back().start();
 			};
 			void inline add_task(const task& task) noexcept
