@@ -239,7 +239,6 @@ export namespace thread
 			bool stopping;
 			void run()
 			{
-				this->status = choices::thread::status::idle;
 				while (true)
 				{
 					std::unique_lock<std::mutex> lock{ this->mutex };
@@ -296,6 +295,7 @@ export namespace thread
 					throw errors::ThreadStartedError();
 				};
 				this->thread = std::thread{ std::bind(&Distributor::run, this) };
+				this->status = choices::thread::status::idle;
 			};
 			inline void add_immediate_task(TaskQueue& queue, const task& task) const noexcept
 			{
