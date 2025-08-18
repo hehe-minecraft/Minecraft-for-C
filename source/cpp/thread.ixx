@@ -170,7 +170,7 @@ export namespace thread
 	{
 		friend class Distributor;
 		protected:
-			std::deque<Worker> workers;
+			std::list<Worker> workers;
 			TaskQueue tasks;
 		public:
 			Group() noexcept = default;
