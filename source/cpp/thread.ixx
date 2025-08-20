@@ -62,7 +62,7 @@ export namespace thread
 	{
 		protected:
 			std::thread thread;
-			choices::thread::status status;
+			std::atomic<choices::thread::status> status;
 			virtual void run() = 0;
 		public:
 			std::string name;
@@ -73,7 +73,7 @@ export namespace thread
 			Thread(const Thread&) = delete;
 			Thread(Thread&& source) noexcept :
 				thread{ std::move(source.thread) },
-				status{ source.status },
+				status{ source.get_status() },
 				name{ source.name }
 			{};
 			virtual ~Thread() noexcept
@@ -98,14 +98,14 @@ export namespace thread
 			};
 			inline choices::thread::status get_status() const noexcept
 			{
-				return this->status;
+				return this->status.load();
 			};
 	};
 	class Worker : public Thread
 	{
 		protected:
 			TaskQueue& queue;
-			bool stopping;
+			std::atomic<bool> stopping;
 			void run()
 			{
 				task task;
@@ -135,7 +135,7 @@ export namespace thread
 			Worker(Worker&& source) noexcept :
 				Thread{ std::move(source) },
 				queue{ source.queue },
-				stopping{ source.stopping }
+				stopping{ source.stopping.load() }
 			{};
 			explicit Worker(TaskQueue& queue) noexcept :
 				Thread{},
@@ -236,7 +236,7 @@ export namespace thread
 			std::priority_queue<DistributingTask> task_queue;
 			std::condition_variable alarm;
 			std::mutex mutex;
-			bool stopping;
+			std::atomic<bool> stopping;
 			void run()
 			{
 				while (true)
@@ -282,7 +282,7 @@ export namespace thread
 			Distributor(const Distributor&) = delete;
 			Distributor(Distributor&& source) noexcept :
 				Thread{ std::move(source) },
-				stopping{ source.stopping }
+				stopping{ source.stopping.load()}
 			{};
 			~Distributor() noexcept
 			{
