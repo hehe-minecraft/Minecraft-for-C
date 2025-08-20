@@ -197,7 +197,7 @@ export namespace thread
 			{
 				return this->workers.size();
 			};
-			void add_worker(const std::string& name = constants::thread::default_name) noexcept
+			void add_worker(std::string_view name = constants::thread::default_name) noexcept
 			{
 				this->workers.emplace_back(this->tasks);
 				this->workers.back().name = name;

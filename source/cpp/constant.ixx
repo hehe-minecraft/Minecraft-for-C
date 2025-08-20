@@ -6,7 +6,7 @@ export namespace constants
 {
 	namespace thread
 	{
-		const std::string default_name = "Thread";
+		constexpr std::string_view default_name = "Thread";
 		constexpr std::size_t max_tasks = 1024;
 	};
 };
