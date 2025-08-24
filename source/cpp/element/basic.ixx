@@ -139,4 +139,5 @@ export namespace serialization
 	using byte = std::uint8_t; // Standard std::byte requires too many casts.
 	using serial = std::vector<byte>;
 	serial serialize(const element::element_ptr& object);
+	element::element_ptr deserialize(std::span<byte> serial);
 };

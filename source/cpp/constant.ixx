@@ -70,6 +70,13 @@ export namespace choices
 			set = 0b10000001,
 			dict = 0b10000010
 		};
+		enum class deserialize_frame_type
+		{
+			repeat,
+			list,
+			set,
+			dict
+		};
 	};
 };
 
@@ -82,4 +89,20 @@ export namespace errors
 	class ThreadTooManyTasksError : public ThreadError {};
 	class SerializeError : public BasicError {};
 	class SerializeMemoOverflowError : public SerializeError {};
+	class DeserializeError : public BasicError {};
+	class DeserializeVersionError : public DeserializeError {};
+	class DeserializeTooLongError : public DeserializeError {};
+	class DeserializeInvalidError : public DeserializeError {};
+	class DeserializeInvalidOpCodeError : public DeserializeInvalidError {};
+	class DeserializeMemoError : public DeserializeInvalidError {};
+	class DeserializeMemoDuplicateError : public DeserializeMemoError {};
+	class DeserializeMemoInvalidError : public DeserializeMemoError {};
+	class DeserializeIncompleteError : public DeserializeInvalidError {};
+	class DeserializeIncompleteDataError : public DeserializeIncompleteError {};
+	class DeserializeNoResultError : public DeserializeIncompleteError {};
+	class DeserializeEOFError : public DeserializeIncompleteError {};
+	class DeserializeRepeatEOFError : public DeserializeEOFError {};
+	class DeserializeRedundantError : public DeserializeInvalidError {};
+	class DeserializeStopEarlyError : public DeserializeRedundantError {};
+	class DeserializeMultipleResultError : public DeserializeRedundantError {};
 };
