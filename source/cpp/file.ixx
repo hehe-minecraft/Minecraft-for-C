@@ -24,6 +24,6 @@ export namespace file
 		{
 			throw errors::FileNotFoundError();
 		};
-		return std::move(image);
+		return image;
 	};
 };

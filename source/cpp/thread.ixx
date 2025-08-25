@@ -43,7 +43,7 @@ export namespace thread
 				{
 					task task = std::move(this->queue.front());
 					this->queue.pop();
-					return std::move(task);
+					return task;
 				};
 			};
 			task get() noexcept
@@ -55,7 +55,7 @@ export namespace thread
 				};
 				task task = std::move(this->queue.front());
 				this->queue.pop();
-				return std::move(task);
+				return task;
 			};
 	};
 	class Thread
@@ -334,7 +334,7 @@ export namespace thread
 					.queue = queue
 				};
 				std::unique_lock<std::mutex> lock{ this->mutex };
-				this->task_queue.emplace(std::move(loop_task));
+				this->task_queue.push(std::move(loop_task));
 				this->alarm.notify_one();
 			};
 			inline void add_loop_task(TaskQueue& queue, const task& task, const duration& interval) noexcept

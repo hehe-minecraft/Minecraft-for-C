@@ -117,7 +117,7 @@ class SerializeContext
 				optimized_instructions.insert_range(optimized_instructions.end(), instruction);
 			};
 			optimized_instructions.emplace_back(choices::serialization::op_code::stop);
-			return std::move(optimized_instructions);
+			return optimized_instructions;
 		};
 };
 
@@ -155,19 +155,19 @@ class DeserializeContext
 				result.insert_range(result.end(), this->instructions.subspan(top_repeat_frame.index, length_left));
 				length -= length_left;
 				if (top_repeat_frame.repeat_times_left)
-			{
+				{
 					top_repeat_frame.repeat_times_left--;
 					top_repeat_frame.index = top_repeat_frame.begin;
 				}
 				else if (this->repeat_stack.size() == 1) // Only the bottom layer left.
 				{
-				throw errors::DeserializeEOFError();
+					throw errors::DeserializeEOFError();
 				}
 				else
 				{
 					this->repeat_stack.pop();
 					top_repeat_frame = this->repeat_stack.top();
-			};
+				};
 				length_left = top_repeat_frame.end - top_repeat_frame.index;
 			};
 			result.insert_range(result.end(), this->instructions.subspan(top_repeat_frame.index, length));
@@ -195,7 +195,7 @@ class DeserializeContext
 		{
 			element::element_ptr element = this->current_frame.front(); // The element pushed at first
 			this->current_frame.pop();
-			return std::move(element);
+			return element;
 		};
 		element::element_ptr get_latest_element() const
 		{
