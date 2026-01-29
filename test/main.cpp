@@ -24,22 +24,22 @@ namespace test
 			void test_all(std::vector<std::string>& label_stack)
 			{
 				std::string label = combine_labels(label_stack);
-				std::cout << "[  GROUP  ]\t" << label << std::endl;
+				std::cout << "[  \033[93mGROUP\033[0m  ]\t" << label << std::endl;
 				this->successes = 0;
 				this->failures = 0;
 				for (auto& [each_function_name, each_function] : this->functions)
 				{
 					label_stack.push_back(each_function_name);
 					std::string inner_label = combine_labels(label_stack);
-					std::cout << "[ RUNNING ]\t" << inner_label << '\r';
+					std::cout << "[ \033[94mRUNNING\033[0m ]\t" << inner_label << '\r';
 					if (each_function())
 					{
-						std::cout << "[ SUCCESS ]\t" << inner_label << std::endl;
+						std::cout << "[ \033[92mSUCCESS\033[0m ]\t" << inner_label << std::endl;
 						this->successes++;
 					}
 					else
 					{
-						std::cout << "[ FAILURE ]\t" << inner_label << std::endl;
+						std::cout << "[ \033[91mFAILURE\033[0m ]\t" << inner_label << std::endl;
 						this->failures++;
 					};
 					label_stack.pop_back();
@@ -52,7 +52,7 @@ namespace test
 					this->failures += each_subpack.failures;
 					label_stack.pop_back();
 				};
-				std::cout << std::format("[ {:>3}/{:<3} ]\t", this->failures, this->successes + this->failures) << label << std::endl;
+				std::cout << std::format("[ \033[91m{:>3}\033[0m/\033[93m{:<3}\033[0m ]\t", this->failures, this->successes + this->failures) << label << std::endl;
 			};
 		public:
 			int successes = 0;
